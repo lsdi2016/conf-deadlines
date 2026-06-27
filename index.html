@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conference Deadlines 2026–2027</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      color: #fff;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 20px 30px;
+    }
+
+    header h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(90deg, #f9c74f, #f3722c, #f94144);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #aaa;
+      font-size: 1rem;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 0 auto 30px;
+      max-width: 700px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-past    { background: #444; color: #ccc; }
+    .badge-urgent  { background: linear-gradient(90deg,#f94144,#f3722c); color:#fff; }
+    .badge-soon    { background: linear-gradient(90deg,#f9844a,#f9c74f); color:#111; }
+    .badge-later   { background: linear-gradient(90deg,#43aa8b,#4d908e); color:#fff; }
+    .badge-future  { background: linear-gradient(90deg,#577590,#277da1); color:#fff; }
+
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; opacity: 0.8; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 22px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    }
+
+    .card-top {
+      padding: 20px 22px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .rank {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .conf-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      color: #f0f0f0;
+    }
+
+    .conf-name a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .conf-name a:hover { text-decoration: underline; color: #f9c74f; }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .deadline-pill {
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.2px;
+    }
+
+    .days-left {
+      font-size: 0.75rem;
+      color: #bbb;
+    }
+
+    .card-body {
+      padding: 16px 22px 20px;
+    }
+
+    .dates-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    .dates-table tr + tr td { border-top: 1px solid rgba(255,255,255,0.07); }
+
+    .dates-table td {
+      padding: 7px 0;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+
+    .dates-table td:first-child {
+      color: #aaa;
+      padding-right: 14px;
+      width: 52%;
+    }
+
+    .dates-table td:last-child {
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+
+    .highlight-row td { color: #f9c74f !important; }
+    .past-row td { opacity: 0.45; text-decoration: line-through; text-decoration-color: #666; }
+
+    .rounds-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #888;
+      margin: 14px 0 6px;
+    }
+
+    .past-banner {
+      position: absolute;
+      top: 14px; right: -28px;
+      background: #555;
+      color: #ddd;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 3px 36px;
+      transform: rotate(45deg);
+      text-transform: uppercase;
+    }
+
+    /* urgency border colours */
+    .card.past    { border-color: rgba(100,100,100,0.3); }
+    .card.urgent  { border-color: rgba(249,65,68,0.5); box-shadow: 0 0 0 1px rgba(249,65,68,0.3); }
+    .card.soon    { border-color: rgba(249,196,79,0.4); }
+    .card.later   { border-color: rgba(67,170,139,0.4); }
+    .card.future  { border-color: rgba(39,125,161,0.4); }
+
+    .pill-past    { background:#555; color:#ccc; }
+    .pill-urgent  { background:linear-gradient(90deg,#f94144,#f3722c); color:#fff; }
+    .pill-soon    { background:linear-gradient(90deg,#f9844a,#f9c74f); color:#111; }
+    .pill-later   { background:linear-gradient(90deg,#43aa8b,#90be6d); color:#111; }
+    .pill-future  { background:linear-gradient(90deg,#277da1,#577590); color:#fff; }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px 20px;
+      color: #555;
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📅 Conference Deadlines</h1>
+  <p>2026 – 2027 &nbsp;·&nbsp; Sorted by Paper Submission Deadline</p>
+</header>
+
+<div class="legend">
+  <span class="badge badge-past"><span class="dot"></span> Past</span>
+  <span class="badge badge-urgent"><span class="dot"></span> ≤ 7 days</span>
+  <span class="badge badge-soon"><span class="dot"></span> ≤ 30 days</span>
+  <span class="badge badge-later"><span class="dot"></span> ≤ 90 days</span>
+  <span class="badge badge-future"><span class="dot"></span> 90+ days away</span>
+</div>
+
+<div class="grid" id="cards"></div>
+
+<footer>
+  All deadlines are AoE (Anywhere on Earth) unless otherwise noted. &nbsp;·&nbsp; Page generated 2026-06-27.
+</footer>
+
+<script>
+const TODAY = new Date('2026-06-27');
+
+function daysFrom(dateStr) {
+  if (!dateStr || dateStr === 'TBA') return null;
+  const d = new Date(dateStr);
+  return Math.round((d - TODAY) / 86400000);
+}
+
+function urgency(days) {
+  if (days === null) return 'future';
+  if (days < 0)  return 'past';
+  if (days <= 7)  return 'urgent';
+  if (days <= 30) return 'soon';
+  if (days <= 90) return 'later';
+  return 'future';
+}
+
+function fmt(dateStr) {
+  if (!dateStr || dateStr === 'TBA') return 'TBA';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function daysLabel(days) {
+  if (days === null) return '';
+  if (days < 0)  return `${Math.abs(days)}d ago`;
+  if (days === 0) return 'TODAY!';
+  if (days === 1) return '1 day left';
+  return `${days} days left`;
+}
+
+const confs = [
+  {
+    name: 'ICDE 2027 — Round 1',
+    fullName: '43rd IEEE International Conference on Data Engineering',
+    url: 'https://icde2027.github.io/',
+    paperDeadline: '2026-06-11',
+    dates: [
+      { label: '📝 Paper Submission',    date: '2026-06-11', highlight: true },
+      { label: '💬 Author Rebuttal',     date: '2026-08-08' },
+      { label: '📬 Notification',        date: '2026-09-10' },
+      { label: '📄 Camera Ready',        date: '2026-10-10' },
+    ]
+  },
+  {
+    name: "SoCC '26 — Round 2",
+    fullName: "ACM Symposium on Cloud Computing 2026",
+    url: 'https://acmsocc.org/2026/papers.html',
+    paperDeadline: '2026-07-14',
+    dates: [
+      { label: '📌 Abstract Due',        date: '2026-07-07' },
+      { label: '📝 Paper Submission',    date: '2026-07-14', highlight: true },
+      { label: '💬 Author Response',     date: '2026-09-10' },
+      { label: '📬 Notification',        date: '2026-09-26' },
+      { label: '📄 Camera Ready',        date: '2026-10-17' },
+      { label: '🎤 Conference',          date: '2026-11-18' },
+    ]
+  },
+  {
+    name: 'SIGMOD 2027 — Round 3',
+    fullName: 'ACM SIGMOD/PODS International Conference on Management of Data',
+    url: 'https://2027.sigmod.org/calls_papers_important_dates.shtml',
+    paperDeadline: '2026-07-17',
+    dates: [
+      { label: '📌 Abstract & COI',      date: '2026-07-10' },
+      { label: '📝 Paper Submission',    date: '2026-07-17', highlight: true },
+      { label: '💬 Author Feedback',     date: '2026-09-10' },
+      { label: '📬 Notification',        date: '2026-10-19' },
+      { label: '🔁 Revision Submission', date: '2026-11-19' },
+      { label: '✅ Final Notification',  date: '2026-12-12' },
+    ]
+  },
+  {
+    name: 'KDD 2027',
+    fullName: 'ACM SIGKDD Conference on Knowledge Discovery and Data Mining',
+    url: 'https://kdd2027.kdd.org/',
+    paperDeadline: '2026-07-26',
+    dates: [
+      { label: '📌 Abstract Due',        date: '2026-07-19' },
+      { label: '📝 Paper Submission',    date: '2026-07-26', highlight: true },
+      { label: '💬 Author Rebuttal',     date: '2026-09-29' },
+      { label: '📬 Notification',        date: '2026-11-14' },
+    ]
+  },
+  {
+    name: 'HPCA 2027',
+    fullName: 'IEEE International Symposium on High-Performance Computer Architecture',
+    url: 'https://conf.researchr.org/track/hpca-2027/hpca-2027-main-conference/',
+    paperDeadline: '2026-07-31',
+    dates: [
+      { label: '📌 Abstract Due',        date: '2026-07-24' },
+      { label: '📝 Paper Submission',    date: '2026-07-31', highlight: true },
+      { label: '💬 Revision/Rebuttal',   date: '2026-09-28' },
+      { label: '📬 Notification',        date: '2026-11-06' },
+      { label: '📄 Camera Ready',        date: 'TBA' },
+    ]
+  },
+  {
+    name: 'INFOCOM 2027',
+    fullName: 'IEEE International Conference on Computer Communications',
+    url: null,
+    paperDeadline: '2026-07-31',
+    dates: [
+      { label: '📌 Abstract Due',        date: '2026-07-24' },
+      { label: '📝 Paper Submission',    date: '2026-07-31', highlight: true },
+      { label: '⚡ Early Reject Notice', date: '2026-10-09' },
+      { label: '📬 Notification',        date: '2026-12-08' },
+    ]
+  },
+  {
+    name: 'CIDR 2027',
+    fullName: 'Conference on Innovative Data Systems Research',
+    url: 'https://www.cidrdb.org/cidr2027/cfp.html',
+    paperDeadline: '2026-08-04',
+    dates: [
+      { label: '📝 Paper Submission',    date: '2026-08-04', highlight: true },
+      { label: '📬 Author Notification', date: '2026-10-06' },
+      { label: '📄 Camera Ready',        date: '2026-12-04' },
+      { label: '🎤 Conference',          date: '2027-01-24' },
+    ]
+  },
+  {
+    name: 'IEEE Big Data 2026',
+    fullName: '2026 IEEE International Conference on Big Data',
+    url: 'https://bigdataieee.org/BigData2026/important-dates/',
+    paperDeadline: '2026-08-21',
+    dates: [
+      { label: '📝 Paper Submission',    date: '2026-08-21', highlight: true },
+      { label: '📬 Notification',        date: '2026-10-24' },
+      { label: '📄 Camera Ready',        date: '2026-11-14' },
+      { label: '🎤 Conference',          date: '2026-12-14' },
+    ]
+  },
+  {
+    name: 'ICDE 2027 — Round 2',
+    fullName: '43rd IEEE International Conference on Data Engineering',
+    url: 'https://icde2027.github.io/',
+    paperDeadline: '2026-11-11',
+    dates: [
+      { label: '📝 Paper Submission',    date: '2026-11-11', highlight: true },
+      { label: '💬 Author Rebuttal',     date: '2027-01-08' },
+      { label: '📬 Notification',        date: '2027-02-10' },
+      { label: '📄 Camera Ready',        date: '2027-03-10' },
+    ],
+    note: 'Papers rejected in Round 1 cannot resubmit here.'
+  },
+  {
+    name: 'Cloud Computing 2027',
+    fullName: 'IARIA International Conference on Cloud Computing',
+    url: 'https://www.iaria.org/conferences2027/CLOUDCOMPUTING27.html',
+    paperDeadline: '2026-11-16',
+    dates: [
+      { label: '📝 Paper Submission',    date: '2026-11-16', highlight: true },
+      { label: '📬 Notification',        date: '2027-01-03' },
+      { label: '📋 Registration',        date: '2027-01-17' },
+      { label: '📄 Camera Ready',        date: '2027-01-31' },
+    ]
+  },
+];
+
+// Sort by paper deadline (nulls/TBA last)
+confs.sort((a, b) => {
+  const da = new Date(a.paperDeadline), db = new Date(b.paperDeadline);
+  return da - db;
+});
+
+const container = document.getElementById('cards');
+
+confs.forEach((conf, i) => {
+  const days = daysFrom(conf.paperDeadline);
+  const urg  = urgency(days);
+
+  const card = document.createElement('div');
+  card.className = `card ${urg}`;
+
+  const nameHtml = conf.url
+    ? `<a href="${conf.url}" target="_blank" rel="noopener">${conf.name}</a>`
+    : conf.name;
+
+  const daysLbl = daysLabel(days);
+  const pilClass = `pill-${urg}`;
+
+  let rowsHtml = conf.dates.map(d => {
+    const dDays = daysFrom(d.date);
+    const isPast = dDays !== null && dDays < 0;
+    const rowClass = d.highlight ? 'highlight-row' : isPast ? 'past-row' : '';
+    return `<tr class="${rowClass}"><td>${d.label}</td><td>${fmt(d.date)}</td></tr>`;
+  }).join('');
+
+  const pastBanner = urg === 'past' ? `<div class="past-banner">Passed</div>` : '';
+
+  const noteHtml = conf.note
+    ? `<p style="font-size:0.75rem;color:#f9844a;margin-top:12px;">⚠️ ${conf.note}</p>`
+    : '';
+
+  card.innerHTML = `
+    ${pastBanner}
+    <div class="card-top">
+      <div class="rank">#${i + 1} by deadline</div>
+      <div class="conf-name">${nameHtml}</div>
+      <div class="status-row">
+        <span class="deadline-pill ${pilClass}">${fmt(conf.paperDeadline)}</span>
+        ${daysLbl ? `<span class="days-left">⏳ ${daysLbl}</span>` : ''}
+      </div>
+    </div>
+    <div class="card-body">
+      <table class="dates-table">${rowsHtml}</table>
+      ${noteHtml}
+    </div>
+  `;
+
+  container.appendChild(card);
+});
+</script>
+</body>
+</html>
